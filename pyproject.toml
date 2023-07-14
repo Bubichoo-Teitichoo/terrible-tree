@@ -3,7 +3,7 @@ requires = ["setuptools", "setuptools_scm[toml]"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "pytree"
+name = "treett"
 requires-python = ">=3.9"
 authors = [
   { name="Philipp Krueger", email="foo@mail.com" },
@@ -21,7 +21,7 @@ dependencies = []
 dynamic = ["version"]
 
 [project.scripts]
-pytree = "pytree:pytree.main"
+treett = "treett:treett.main"
 
 [project.optional-dependencies]
 dev = [
@@ -32,5 +32,5 @@ dev = [
 where = ["src"]
 
 [tool.setuptools_scm]
-write_to = "./src/pytree/__version__.py"
+write_to = "./src/treett/__version__.py"
 version_scheme = "python-simplified-semver"

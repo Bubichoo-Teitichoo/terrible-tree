@@ -80,9 +80,9 @@ def extract_parents_from_treelist(lst: List[Tuple[TreeItem, int]], start, end, b
 def main():
     argument_parser = argparse.ArgumentParser("Modern Tree")
     argument_parser.add_argument('path', nargs='?', type=TreeItem, default=TreeItem('.'))
-    argument_parser.add_argument('--dot', action='store_true', help='Show content of folders starting with a dot')
+    argument_parser.add_argument('--dot', action='store_true', help='Include "hidden folders"')
     argument_parser.add_argument('--dir', action='store_true', help='Show directories only')
-    argument_parser.add_argument('--depth', type=int, default=0, help='Set max. depth of scan')
+    argument_parser.add_argument('--depth', type=int, default=0, help='Set max. display depth')
     argument_parser.add_argument('-f', '--filter', type=str, default='*', help='Filter files (glob syntax)')
 
 
