@@ -1,0 +1,36 @@
+[build-system]
+requires = ["setuptools", "setuptools_scm[toml]"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pytree"
+requires-python = ">=3.9"
+authors = [
+  { name="Philipp Krueger", email="foo@mail.com" },
+]
+description = "A ground breaking reimplmentation of the tree command"
+readme = "README.md"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+
+
+dependencies = []
+dynamic = ["version"]
+
+[project.scripts]
+pytree = "pytree:pytree.main"
+
+[project.optional-dependencies]
+dev = [
+    "build~=0.10.0"
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools_scm]
+write_to = "./src/pytree/__version__.py"
+version_scheme = "python-simplified-semver"
