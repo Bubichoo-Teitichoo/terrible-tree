@@ -2,64 +2,14 @@ from __future__ import annotations
 
 import fnmatch
 import argparse
-from pathlib import Path
 
 from typing import List
 from typing import Tuple
-from typing import Union
-from typing import Generator
 
-TREE_FORK = '├──'
-TREE_TERMINAL = '└──'
-TREE_BRANCH = '│'
-TREE_DIR_ICON = '📂'
-TREE_FILE_ICON = '📄'
-
-class TreeItem:
-    def __init__(self, path: Union[str,Path]):
-        self.path: Path = Path(path).resolve()
-
-    def __iter__(self) -> Generator[TreeItem, None, None]:
-        if not self.is_dir():
-            return
-        dirs = []
-        files = []
-        for item in self.path.iterdir():
-            item = TreeItem(item)
-            if item.is_dir():
-                dirs.append(item)
-            else:
-                files.append(item)
-        yield from dirs + files
-
-    def __str__(self) -> str:
-        return self.name_with_icon()
-
-    def __repr__(self) -> str:
-        return f'<TreeItem - {self.path}>'
-
-    def is_dir(self) -> bool:
-        return self.path.is_dir()        
-
-    def has_relative_directories(self, root: TreeItem) -> int:
-        root: Path = root.path
-        return len(self.path.relative_to(root).parents)
-
-    def has_leafs(self) -> bool:
-        return self.path.is_dir() and bool(list(self.path.iterdir()))
-
-    def name_with_icon(self, resolve: bool = False) -> str:
-        return f'{TREE_DIR_ICON if self.path.is_dir() else TREE_FILE_ICON} {str(self.path) if resolve else self.path.name}'
-
-    def create_list(self) -> List[Tuple[TreeItem, int]]:
-        def treelist_recursive_create(item: TreeItem, depth: int = 0) -> List[Tuple[TreeItem, int]]:
-            result = []
-            result.append((item, depth))
-            for subitem in item:
-                result.extend(treelist_recursive_create(subitem, depth+1))
-            return result
-        return treelist_recursive_create(self)
-
+from .item import TreeItem
+from .icons import TREE_FORK
+from .icons import TREE_BRANCH
+from .icons import TREE_TERMINAL
 
 def extract_parents_from_treelist(lst: List[Tuple[TreeItem, int]], start, end, base_depth):
     result = []
@@ -82,37 +32,23 @@ def main():
     argument_parser.add_argument('path', nargs='?', type=TreeItem, default=TreeItem('.'))
     argument_parser.add_argument('--hidden', action='store_true', help='Include "hidden folders"')
     argument_parser.add_argument('--dirs', action='store_true', help='Show directories only')
-    argument_parser.add_argument('--depth', type=int, default=0, help='Set max. display depth')
+    argument_parser.add_argument('--depth', type=int, default=-1, help='Set max. display depth')
     argument_parser.add_argument('-f', '--filter', type=str, default='*', help='Filter files (glob syntax)')
 
 
     arguments = argument_parser.parse_args()
 
     root: TreeItem = arguments.path
-    treelist = root.create_list()
+    filtered_list = treelist = root.create_list(
+        arguments.depth,
+        arguments.dirs,
+        arguments.hidden
+    )
 
-
-    filtered_list = treelist
-
-    if not arguments.dot:
-        filtered_list = []
-        for item, depth in treelist:
-            item_path = item.path if item.path.is_dir() else item.path.parent
-            item_path = item_path.relative_to(root.path)
-            if item_path.name.startswith('.') or any(parent.name.startswith('.') for parent in list(item_path.parents)[:-1]):
-                continue    
-            filtered_list.append((item, depth))
-        treelist = filtered_list
-
-    if arguments.dir:
-        filtered_list = [(item, depth) for item, depth in treelist if item.is_dir()]
-        treelist = filtered_list
-
-    if arguments.depth != 0:
-        filtered_list = [(item, depth) for item, depth in treelist if depth <= arguments.depth]
-        treelist = filtered_list
+    #if arguments.dirs:
+    #    filtered_list = [(item, depth) for item, depth in treelist if item.is_dir()]
+    #    treelist = filtered_list
                 
-
     if arguments.filter != '*':        
         filtered_list = []
         copy_idx = 0

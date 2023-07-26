@@ -1,0 +1,5 @@
+TREE_FORK = '├──'
+TREE_TERMINAL = '└──'
+TREE_BRANCH = '│'
+TREE_DIR_ICON = '📂'
+TREE_FILE_ICON = '📄'
