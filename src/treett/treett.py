@@ -44,33 +44,18 @@ def main():
         arguments.dirs,
         arguments.hidden
     )
-
-    #if arguments.dirs:
-    #    filtered_list = [(item, depth) for item, depth in treelist if item.is_dir()]
-    #    treelist = filtered_list
                 
     if arguments.filter != '*':        
         filtered_list = []
         copy_idx = 0
-        forward_copy = 0
         for idx, (item, depth) in enumerate(treelist):
-            if 0 != forward_copy and depth > forward_copy:
-                filtered_list.append((item, depth))
-                copy_idx = idx
-                continue
-            else:
-                forward_copy = 0
 
             # apply the given filter
             # copy all direct parents of a matching item into the result
             if fnmatch.fnmatch(str(item.path).replace(r'\\', '/'), arguments.filter) or fnmatch.fnmatch(str(item.path.name), arguments.filter):
-                #print(item)
                 filtered_list.extend(extract_parents_from_treelist(treelist, copy_idx, idx, depth))
                 filtered_list.append((item, depth))
-                #if not item.is_dir():
                 copy_idx = idx
-                #else:
-                #    forward_copy = depth
 
     if not filtered_list:
         print(root.name_with_icon(True))
