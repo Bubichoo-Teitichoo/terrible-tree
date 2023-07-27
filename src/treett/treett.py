@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import sys
 import fnmatch
 import argparse
 
@@ -28,6 +29,8 @@ def extract_parents_from_treelist(lst: List[Tuple[TreeItem, int]], start, end, b
 
 
 def main():
+    sys.stdout.reconfigure(encoding='utf-8')
+    
     argument_parser = argparse.ArgumentParser("Modern Tree")
     argument_parser.add_argument('path', nargs='?', type=TreeItem, default=TreeItem('.'))
     argument_parser.add_argument('--hidden', action='store_true', help='Include "hidden folders"')
