@@ -4,6 +4,9 @@ import sys
 import fnmatch
 import argparse
 
+import importlib.metadata as metadata
+from pathlib import Path
+
 from typing import List
 from typing import Tuple
 
@@ -30,13 +33,19 @@ def extract_parents_from_treelist(lst: List[Tuple[TreeItem, int]], start, end, b
 
 def main():
     sys.stdout.reconfigure(encoding='utf-8')
-    
-    argument_parser = argparse.ArgumentParser("Modern Tree")
+
+    #print(version(Path(sys.argv[0]).name))
+
+    argument_parser = argparse.ArgumentParser(
+        "Tree Tra Trulala",
+        description='A "modern" approach to the tree command, born out of pure boredom.'
+    )
     argument_parser.add_argument('path', nargs='?', type=TreeItem, default=TreeItem('.'))
     argument_parser.add_argument('--hidden', action='store_true', help='Include "hidden folders"')
     argument_parser.add_argument('--dirs', action='store_true', help='Show directories only')
-    argument_parser.add_argument('--depth', type=int, default=-1, help='Set max. display depth')
-    argument_parser.add_argument('-f', '--filter', type=str, default='*', help='Filter files (glob syntax)')
+    argument_parser.add_argument('--depth', type=int, default=-1, help='Set maximum traversal depth')
+    argument_parser.add_argument('-f', '--filter', type=str, default='*', help='filter tree using glob syntax')
+    argument_parser.add_argument('-v', '--version', action='version', version=metadata.version(Path(sys.argv[0]).name))
 
 
     arguments = argument_parser.parse_args()
