@@ -1,19 +1,18 @@
 from __future__ import annotations
 
+import io
 import sys
 import fnmatch
 import argparse
 
-import importlib.metadata as metadata
-from pathlib import Path
-
 from typing import List
 from typing import Tuple
 
-from .item import TreeItem
-from .icons import TREE_FORK
-from .icons import TREE_BRANCH
-from .icons import TREE_TERMINAL
+from treett.item import TreeItem
+from treett.icons import TREE_FORK
+from treett.icons import TREE_BRANCH
+from treett.icons import TREE_TERMINAL
+from treett.__version__ import __version__
 
 def extract_parents_from_treelist(lst: List[Tuple[TreeItem, int]], start, end, base_depth):
     result = []
@@ -32,9 +31,8 @@ def extract_parents_from_treelist(lst: List[Tuple[TreeItem, int]], start, end, b
 
 
 def main():
-    sys.stdout.reconfigure(encoding='utf-8')
-
-    #print(version(Path(sys.argv[0]).name))
+    if isinstance(sys.stdout, io.TextIOWrapper):
+        sys.stdout.reconfigure(encoding='utf-8')
 
     argument_parser = argparse.ArgumentParser(
         "Tree Tra Trulala",
@@ -45,7 +43,7 @@ def main():
     argument_parser.add_argument('--dirs', action='store_true', help='Show directories only')
     argument_parser.add_argument('--depth', type=int, default=-1, help='Set maximum traversal depth')
     argument_parser.add_argument('-f', '--filter', type=str, default='*', help='filter tree using glob syntax')
-    argument_parser.add_argument('-v', '--version', action='version', version=metadata.version(Path(sys.argv[0]).name))
+    argument_parser.add_argument('-v', '--version', action='version', version=__version__)
 
 
     arguments = argument_parser.parse_args()
@@ -110,6 +108,7 @@ def main():
                 indentation.append(TREE_FORK)
 
         print(f'{"".join(indentation)}{item.name_with_icon(depth == 0)}')
+
 
 if __name__ == '__main__':
     main()
