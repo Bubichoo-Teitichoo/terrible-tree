@@ -41,12 +41,8 @@ jobs:
     - name: Build Package
       run: |
         python -m build
-    - name: Upload Wheel
+    - name: Upload Packages
       uses: actions/upload-artifact@v3
       with:
-        path: dist/*.whl
-        
-    - name: Upload Tarball
-      uses: actions/upload-artifact@v3
-      with:
-        path: dist/*.tar.gz
+        name: ${{ matrix.python-version }}
+        path: dist/
