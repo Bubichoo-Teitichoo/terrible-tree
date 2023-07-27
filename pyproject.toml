@@ -21,7 +21,7 @@ dependencies = []
 dynamic = ["version"]
 
 [project.scripts]
-treett = "treett:treett.main"
+treett = "treett.__main__:main"
 
 [project.optional-dependencies]
 dev = [
