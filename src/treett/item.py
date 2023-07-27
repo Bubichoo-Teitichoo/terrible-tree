@@ -40,9 +40,8 @@ class TreeItem:
     def is_dir(self) -> bool:
         return self.path.is_dir()        
 
-    def has_relative_directories(self, root: TreeItem) -> int:
-        root: Path = root.path
-        return len(self.path.relative_to(root).parents)
+    def has_relative_directories(self, item: TreeItem) -> int:
+        return len(self.path.relative_to(item.path).parents)
 
     def has_leafs(self) -> bool:
         return self.path.is_dir() and bool(list(self.path.iterdir()))
