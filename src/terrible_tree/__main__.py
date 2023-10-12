@@ -8,11 +8,13 @@ import argparse
 from typing import List
 from typing import Tuple
 
-from treett.item import TreeItem
-from treett.icons import TREE_FORK
-from treett.icons import TREE_BRANCH
-from treett.icons import TREE_TERMINAL
-from treett.__version__ import __version__
+from terrible_tree.item import TreeItem
+from terrible_tree.icons import TREE_FORK
+from terrible_tree.icons import TREE_BRANCH
+from terrible_tree.icons import TREE_TERMINAL
+
+
+__version__ = "0.1.0"
 
 def extract_parents_from_treelist(lst: List[Tuple[TreeItem, int]], start, end, base_depth):
     result = []
