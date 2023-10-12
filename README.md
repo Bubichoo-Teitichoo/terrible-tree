@@ -10,22 +10,22 @@ Here are a few examples how to run this application
 
 ```shell
 # ls equivalent
-treett --depth 1
+terrible-tree --depth 1
 ```
 
 ```shell
 # maximum depth, only directories
-treett --dirs
+terrible-tree --dirs
 ```
 
 ```shell
 # maximum depth of 4, only directories
-treett --dirs --depth 4
+terrible-tree --dirs --depth 4
 ```
 
 ```shell
 # maximum depth of 4, only python files
-treett --depth 4 -f *.py
+terrible-tree --depth 4 -f *.py
 ```
 
 ### Replace `ls` and/or `tree` in Windows PowerShell
@@ -41,9 +41,9 @@ nvim $profile
 ```powershell
 
 function ls_alias {
-    treett --depth 1
+    terrible-tree --depth 1
 }
 
 Set-Alias -Name ls -Value ls_alias -Option AllScope
-Set-Alias -Name tree -Value treett -Option AllScope
+Set-Alias -Name tree -Value terrible-tree -Option AllScope
 ```
