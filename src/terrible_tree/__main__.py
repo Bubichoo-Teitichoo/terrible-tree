@@ -1,116 +1,71 @@
 from __future__ import annotations
 
-import io
 import sys
-import fnmatch
-import argparse
 
-from typing import List
-from typing import Tuple
+import click
 
-from terrible_tree.item import TreeItem
-from terrible_tree.icons import TREE_FORK
-from terrible_tree.icons import TREE_BRANCH
-from terrible_tree.icons import TREE_TERMINAL
+from terrible_tree.icons import (
+    TREE_BRANCH,
+    TREE_FORK,
+    TREE_TERMINAL,
+)
 
-
-__version__ = "0.1.0"
-
-def extract_parents_from_treelist(lst: List[Tuple[TreeItem, int]], start, end, base_depth):
-    result = []
-    
-    # if start is 0 set it to none otherwise the root item is droped
-    if 0 == start:
-        start = None
-
-    # every directory with a lower depth is a direct parent
-    # after copying a parent the base_depth is reset
-    for item, depth in lst[end:start:-1]:
-        if depth < base_depth and item.is_dir():
-            result.append((item, depth))
-            base_depth = depth
-    return reversed(result)
+from .tree import TerribleTree, TreeItem
 
 
-def main():
-    if isinstance(sys.stdout, io.TextIOWrapper):
-        sys.stdout.reconfigure(encoding='utf-8')
-
-    argument_parser = argparse.ArgumentParser(
-        "Tree Tra Trulala",
-        description='A "modern" approach to the tree command, born out of pure boredom.'
-    )
-    argument_parser.add_argument('path', nargs='?', type=TreeItem, default=TreeItem('.'))
-    argument_parser.add_argument('--hidden', action='store_true', help='Include "hidden folders"')
-    argument_parser.add_argument('--dirs', action='store_true', help='Show directories only')
-    argument_parser.add_argument('--depth', type=int, default=-1, help='Set maximum traversal depth')
-    argument_parser.add_argument('-f', '--filter', type=str, default='*', help='filter tree using glob syntax')
-    argument_parser.add_argument('-v', '--version', action='version', version=__version__)
+def common_option(func):
+    click.help_option("-h", "--help")(func)
+    click.version_option(None, "-v", "--version")(func)
+    return func
 
 
-    arguments = argument_parser.parse_args()
-
-    root: TreeItem = arguments.path
-    filtered_list = treelist = root.create_list(
-        arguments.depth,
-        arguments.dirs,
-        arguments.hidden
-    )
-                
-    if arguments.filter != '*':        
-        filtered_list = []
-        copy_idx = 0
-        for idx, (item, depth) in enumerate(treelist):
-
-            # apply the given filter
-            # copy all direct parents of a matching item into the result
-            if fnmatch.fnmatch(str(item.path).replace(r'\\', '/'), arguments.filter) or fnmatch.fnmatch(str(item.path.name), arguments.filter):
-                filtered_list.extend(extract_parents_from_treelist(treelist, copy_idx, idx, depth))
-                filtered_list.append((item, depth))
-                copy_idx = idx
-
-    if not filtered_list:
-        print(root.name_with_icon(True))
-        exit()
-
-    max_depth = max(filtered_list, key=lambda x: x[1])[1] + 1
-    depth_matrix = max_depth * [False]
-    for idx, (item, depth) in enumerate(filtered_list):
-        
-        # set everything from the current depth to max as enabled
-        for didx in range(depth, max_depth):
-            depth_matrix[didx] = True
-
-        # check wheather the current item is the last on this depth until
-        # depth drops again
-        # set the current element as flagged
-        depth_matrix[depth] = False
-        for _, d in filtered_list[idx+1:]:
-            if d == depth:
-                depth_matrix[depth] = True
-            if depth > d:
-                break
-
-        indentation = []
-        # we dont want to indent the root directory
-        if 0 != depth:
-            # if the current item has at least 2 parents and the parent is
-            # not flagged draw a connecting branch.
-            # otherwise just draw some whitespaces
-            for pidx in range(1, item.has_relative_directories(root)):
-                if depth_matrix[pidx]:
-                    indentation.append(TREE_BRANCH + 2 * " ")
-                else:
-                    indentation.append(3 * " ")
-
-            # if the current item is flagged draw a terminal instead of a fork
-            if not depth_matrix[depth]: #or (idx + 1) == len(filtered_list) or filtered_list[idx+1][1] < depth:
-                indentation.append(TREE_TERMINAL)
-            else:
-                indentation.append(TREE_FORK)
-
-        print(f'{"".join(indentation)}{item.name_with_icon(depth == 0)}')
+@click.group()
+@common_option
+def main() -> None:
+    """A terrible reimplementation of the tree utility."""
 
 
-if __name__ == '__main__':
-    main()
+@main.command(name="tree")
+@common_option
+@click.argument("path", type=TreeItem, default=TreeItem.cwd())
+@click.option("-f", "--filter", "glob_filter", type=str, default="*", help="Unix shell-style wildcard filter.")
+@click.option("-a", "--all", "include_hidden", is_flag=True, type=bool, default=False, help="Print hidden files.")
+def print_tree(path: TreeItem, glob_filter: str, include_hidden: bool) -> None:
+    """
+    List the content of a directory recursively.
+
+    If [PATH] is omitted the current working directory will be used.
+
+    To filter the result one can use the `-f`/`--filter` option, which uses
+    unix style wildcard to filter the output.
+
+    To include hidden files and directories in the tree, one simply has to set
+    the `-a`/`--all` flag.
+    """
+    tree = TerribleTree(path, glob_filter=glob_filter, include_hidden=include_hidden)
+    click.echo(path.as_string(absolute=True))
+    for item in tree:
+        depth = tree.rel_depth(item)
+        # add indentations and branch continuations to the line.
+        # if the tree contains an item with a depth in the range of [1:`depth`] we add a branch i.e. pipe(|)
+        # if not we just add 3 white spaces, indenting the line.
+        line = [f"{TREE_BRANCH if tree.peek(depth=idx) else ' '}{2 * ' '}" for idx in range(1, depth)]
+
+        # if the tree contains  more items on the with the same depth we add a fork
+        # if not we add a teminal.
+        line.append(f"{TREE_FORK if tree.peek(depth=depth) else TREE_TERMINAL}{item.as_string()}")
+        click.echo("".join(line))
+
+
+@main.command(name="ls")
+@common_option
+@click.argument("path", type=TreeItem, default=TreeItem())
+@click.option("-a", "--all", "include_hidden", is_flag=True, type=bool, default=False)
+def print_list(path: TreeItem, include_hidden: bool) -> None:
+    """Print the content of a directory."""
+    for leaf in path.iterdir(include_hidden=include_hidden):
+        click.echo(leaf.as_string())
+
+
+if __name__ == "__main__":
+    sys.exit(main())
