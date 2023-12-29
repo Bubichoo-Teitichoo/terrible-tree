@@ -1,6 +1,9 @@
+"""main module defining CLI commands."""
 from __future__ import annotations
 
 import sys
+from collections.abc import Callable
+from typing import TypeVar
 
 import click
 
@@ -12,8 +15,11 @@ from terrible_tree.icons import (
 
 from .tree import TerribleTree, TreeItem
 
+T = TypeVar("T", bound=Callable)
 
-def common_option(func):
+
+def common_option(func: T) -> T:
+    """Decorator to add common options to all commands."""
     click.help_option("-h", "--help")(func)
     click.version_option(None, "-v", "--version")(func)
     return func

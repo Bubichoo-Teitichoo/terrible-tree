@@ -1,3 +1,4 @@
+"""API."""
 from __future__ import annotations
 
 import platform
@@ -11,13 +12,13 @@ from .icons import TREE_DIR_ICON, TREE_FILE_ICON
 
 if TYPE_CHECKING:
     import os
-    from abc import Callable, Generator
+    from collections.abc import Callable, Generator
 
 
 class TreeItem(Path):
     """Extension to pathlib's Path object."""
 
-    _flavour = Path()._flavour  # noqa: SLF001
+    _flavour = Path()._flavour  # type: ignore[attr-defined]  # noqa: SLF001
 
     @property
     def icon(self) -> str:
@@ -66,13 +67,12 @@ class TreeItem(Path):
 
         iterator = super(TreeItem, self.resolve()).iterdir() if self.is_windows_symlink() else super().iterdir()
         for item in natsort.os_sorted(iterator):
-            if self.is_windows_symlink():
-                item = self.joinpath(item.name)
+            resolved_item = item if not self.is_windows_symlink() else self.joinpath(item.name)
 
-            if item.is_dir():
-                yield item
+            if resolved_item.is_dir():
+                yield resolved_item
             else:
-                files.append(item)
+                files.append(resolved_item)
         yield from files
 
     def iterdir(self, *, include_hidden: bool = False) -> Generator[TreeItem, None, None]:
@@ -93,7 +93,7 @@ class TreeItem(Path):
                 and directories are yielded first then files.
                 See `iterdir_sorted()`.
         """
-        return filter(self.hidden_filter(include_hidden), self.iterdir_sorted())
+        yield from filter(self.hidden_filter(include_hidden), self.iterdir_sorted())
 
     def is_windows_symlink(self) -> bool:
         """Workaround for Windows/NTFS weird symlinks that are not detected by the regular function."""
@@ -112,9 +112,10 @@ class TreeItem(Path):
         Returns:
             str: The name or absolute path of the path object.
         """
+        line = [self.icon, self.name if not absolute else str(self.resolve().as_posix())]
         if self.is_windows_symlink():
-            return f"{self.icon} {str(self.resolve().as_posix()) if absolute else self.name} -> {self.resolve().as_posix()}"
-        return f"{self.icon} {str(self.resolve().as_posix()) if absolute else self.name}"
+            line.extend(["->", self.resolve().as_posix()])
+        return " ".join(line)
 
 
 class TerribleTree:
