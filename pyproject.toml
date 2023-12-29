@@ -1,32 +1,43 @@
-[build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
 
-[tool.poetry]
+[build-system]
+requires = ["pdm-backend"]
+build-backend = "pdm.backend"
+
+[project]
 name = "terrible-tree"
 version = "0.1.0"
-description = "A dump and inefficient reimplmentation of the tree command, born out of pure boredome"
-authors = ["Philipp Krueger"]
+description = "A dump and inefficient reimplmentation of the tree utility application, born out of pure boredome"
+authors = [
+    {name = "Philipp Krueger", email = "pille.krueger@web.de"},
+]
+dependencies = [
+    "click<9.0.0,>=8.1.7",
+    "natsort<9.0.0,>=8.4.0",
+]
+requires-python = ">=3.10,<4.0"
 readme = "README.md"
-license = "MIT"
-packages = [{include = "terrible_tree", from = "src"}]
-
+license = {text = "MIT"}
 classifiers = [
     "Programming Language :: Python :: 3",
-    "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
+    "License :: OSI Approved :: MIT License",
 ]
 
-[tool.poetry.dependencies]
-python = "^3.10"
 
-[tool.poetry.scripts]
-terrible-tree = "terrible_tree.__main__:main"
+[project.scripts]
+terrible-tree = "terrible_tree.__main__:print_tree"
+terrible-ls = "terrible_tree.__main__:print_list"
 
-[tool.poetry.group.dev.dependencies]
-ruff = "^0.1.6"
-python-semantic-release = "^8.1.1"
-pre-commit = "^3.5.0"
+[tool.pdm.dev-dependencies]
+dev = [
+    "ruff<1.0.0,>=0.1.6",
+    "python-semantic-release<9.0.0,>=8.1.1",
+    "pre-commit<4.0.0,>=3.5.0",
+    "mypy>=1.8.0",
+]
+
+[tool.pdm.build]
+includes = ["src/terrible_tree"]
 
 [tool.ruff]
 line-length = 120
@@ -40,7 +51,8 @@ ignore = [
     "D104",     # missing docstring in public package
     "D203",     # no blank line before class docstring
     "D212",     # multi line summary on the first line of a docstring
-    "COM812"    # missing trailing comma
+    "COM812",   # missing trailing comma
+    "FBT001",   # bool as positional argument
 ]
 
 [tool.ruff.per-file-ignores]
@@ -56,43 +68,46 @@ ignore = [
 indent-style = "space"
 quote-style = "double"
 
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
 [tool.ruff.lint.isort]
 known-first-party = ["terrible_tree"]
 
 [tool.poe.tasks]
 install.help = "Setup a development environment and install pre-commit hooks"
 install.sequence = [
-    { cmd = "poetry install" },
+    { cmd = "pdm install" },
     { cmd = "pre-commit install --install-hooks" }
 ]
 
 format.help = "Run Code Formatters"
+format.ignore_fail = "return_non_zero"
 format.sequence = [
     { cmd = "ruff format src" },
-    { cmd = "ruff src --select I --fix" }
+    { cmd = "ruff src --select I --fix" },
 ]
 
 lint.help = "Run Code linters"
+lint.ignore_fail = "return_non_zero"
 lint.sequence = [
     { cmd = "ruff src" },
-    { cmd = "ruff format src --check"}
+    { cmd = "ruff format src --check"},
+    { cmd = "mypy src" },
 ]
 
 [tool.semantic_release]
 branch = "main"
-verison_source = "tag"
 tag_format = "v{version}"
 commit_message = "chore: release v{version}"
-build_command = "poetry build"
-version_variables = [
-    "src/terrible_tree/__main__.py:__version__"
-]
+build_command = "pdm build"
 
 version_toml = [
-    "pyproject.toml:tool.poetry.version",
+    "pyproject.toml:project.version",
 ]
 
 [tool.semantic_release.commit_parser_options]
 allowed_tags = ["build", "chore", "ci", "docs", "feat", "fix", "perf", "style", "refactor", "test"]
 minor_tags = ["feat"]
 patch_tags = ["fix", "perf", "refactor"]
+

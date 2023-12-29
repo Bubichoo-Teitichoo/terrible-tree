@@ -47,3 +47,9 @@ function ls_alias {
 Set-Alias -Name ls -Value ls_alias -Option AllScope
 Set-Alias -Name tree -Value terrible-tree -Option AllScope
 ```
+
+### Nice to Knows
+
+- When using the `-f`/`--filter` on Windows using Wildcard be aware that
+    cmd and powershell expand wildcard in the search-pattern if they find
+    matching files, which may lead to weird errors.
