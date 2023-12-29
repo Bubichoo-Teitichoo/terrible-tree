@@ -1,6 +1,7 @@
 """main module defining CLI commands."""
 from __future__ import annotations
 
+import io
 import sys
 from collections.abc import Callable
 from typing import TypeVar
@@ -14,6 +15,9 @@ from terrible_tree.icons import (
 )
 
 from .tree import TerribleTree, TreeItem
+
+if isinstance(sys.stdout, io.TextIOWrapper):
+    sys.stdout.reconfigure(encoding="utf-8")
 
 T = TypeVar("T", bound=Callable)
 
