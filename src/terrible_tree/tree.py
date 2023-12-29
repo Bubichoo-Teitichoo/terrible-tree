@@ -66,13 +66,16 @@ class TreeItem(Path):
         files: list[TreeItem] = []
 
         iterator = super(TreeItem, self.resolve()).iterdir() if self.is_windows_symlink() else super().iterdir()
-        for item in natsort.os_sorted(iterator):
-            resolved_item = item if not self.is_windows_symlink() else self.joinpath(item.name)
+        try:
+            for item in natsort.os_sorted(iterator):
+                resolved_item = item if not self.is_windows_symlink() else self.joinpath(item.name)
 
-            if resolved_item.is_dir():
-                yield resolved_item
-            else:
-                files.append(resolved_item)
+                if resolved_item.is_dir():
+                    yield resolved_item
+                else:
+                    files.append(resolved_item)
+        except PermissionError:
+            pass
         yield from files
 
     def iterdir(self, *, include_hidden: bool = False) -> Generator[TreeItem, None, None]:
