@@ -54,12 +54,23 @@ def print_tree(path: TreeItem, glob_filter: str, include_hidden: bool) -> None:
     """
     tree = TerribleTree(path, glob_filter=glob_filter, include_hidden=include_hidden)
     click.echo(path.as_string(absolute=True))
+
+    indents: list[bool] = []
     for item in tree:
         depth = tree.rel_depth(item)
+
+        # cache indentations and branch continueations in an array of bools
+        # this way the algorithm is much faster because peek does not have to run
+        # on each cycle.
+        # peek is expensive when looking for the next entry with the same depth
+        # taking up a few milliseconds when building huge trees.
+        while len(indents) >= depth:
+            indents.pop()
+        indents.extend(bool(tree.peek(depth=idx)) for idx in range(len(indents) + 1, depth))
         # add indentations and branch continuations to the line.
         # if the tree contains an item with a depth in the range of [1:`depth`] we add a branch i.e. pipe(|)
         # if not we just add 3 white spaces, indenting the line.
-        line = [f"{TREE_BRANCH if tree.peek(depth=idx) else ' '}{2 * ' '}" for idx in range(1, depth)]
+        line = [f"{TREE_BRANCH if idx else ' '}{2 * ' '}" for idx in indents]
 
         # if the tree contains  more items on the with the same depth we add a fork
         # if not we add a teminal.
