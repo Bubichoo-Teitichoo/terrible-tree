@@ -98,3 +98,7 @@ lint.sequence = [
     { cmd = "mypy src" },
 ]
 
+[tool.commitizen]
+tag_format = "v$version"
+version_provider = "pep621"
+bump_message = "chore: release v$version"
