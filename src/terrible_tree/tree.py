@@ -138,7 +138,7 @@ class TerribleTree:
         """Error raised if the end of a tree has been reached and `next` is called."""
 
     def __init__(
-        self, root: os.PathLike | None = None, *, glob_filter: str | None = None, include_hidden: bool = False
+            self, root: os.PathLike | None = None, *, depth: int = 0, glob_filter: str | None = None, include_hidden: bool = False
     ) -> None:
         """
         Initialize a new instance.
@@ -150,11 +150,12 @@ class TerribleTree:
                 Whether or not to inlcude hidden files and directories.
         """
         self._context: list[TreeItem]
+        self._depth : int
         self._hidden: bool
 
         self._root: TreeItem = TreeItem(root).resolve() if root else TreeItem.cwd()
         self._filter: str = glob_filter or "*"
-        self.reset(include_hidden=include_hidden)
+        self.reset(depth, include_hidden=include_hidden)
 
     def __iter__(self) -> Generator[TreeItem, None, None]:
         """Iterates all files and directories under `root`."""
@@ -166,8 +167,9 @@ class TerribleTree:
         """Get root of the tree."""
         return self._root
 
-    def reset(self, *, include_hidden: bool = False) -> None:
+    def reset(self, depth: int = 0, *, include_hidden: bool = False) -> None:
         """Reset the tree to it's initial state."""
+        self._depth = depth
         self._hidden = include_hidden
         self._context = self._build_subcontext(self.root)
 
@@ -186,7 +188,7 @@ class TerribleTree:
             raise TerribleTree.EndOfTreeError
 
         item = self._context.pop(0)
-        if item.is_dir():
+        if item.is_dir() and (not self._depth or self._depth > self.rel_depth(item)):
             leafs = self._build_subcontext(item)
             self._context[0:0] = leafs
         return item

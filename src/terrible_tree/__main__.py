@@ -40,7 +40,8 @@ def main() -> None:
 @click.argument("path", type=TreeItem, default=TreeItem.cwd())
 @click.option("-f", "--filter", "glob_filter", type=str, default="*", help="Unix shell-style wildcard filter.")
 @click.option("-a", "--all", "include_hidden", is_flag=True, type=bool, default=False, help="Print hidden files.")
-def print_tree(path: TreeItem, glob_filter: str, include_hidden: bool) -> None:
+@click.option("-d", "--depth", "depth", type=int, default=0, help="The maximum depth when recursing subdirectorie.")
+def print_tree(path: TreeItem, glob_filter: str, include_hidden: bool, depth: int) -> None:
     """
     List the content of a directory recursively.
 
@@ -52,7 +53,7 @@ def print_tree(path: TreeItem, glob_filter: str, include_hidden: bool) -> None:
     To include hidden files and directories in the tree, one simply has to set
     the `-a`/`--all` flag.
     """
-    tree = TerribleTree(path, glob_filter=glob_filter, include_hidden=include_hidden)
+    tree = TerribleTree(path, depth=depth, glob_filter=glob_filter, include_hidden=include_hidden)
     click.echo(path.as_string(absolute=True))
 
     indents: list[bool] = []
