@@ -26,7 +26,7 @@ class TreeItem(Path):
         return TREE_DIR_ICON if self.is_dir() else TREE_FILE_ICON
 
     @staticmethod
-    def hidden_filter(allow_hidden: bool) -> Callable[[Path], bool]:
+    def hidden_filter(allow_hidden: bool) -> Callable[[Path], bool]:  # noqa: FBT001
         """
         Returns a function that can be passed to `filter` for filtering hidden files and directories.
 
@@ -138,19 +138,26 @@ class TerribleTree:
         """Error raised if the end of a tree has been reached and `next` is called."""
 
     def __init__(
-            self, root: os.PathLike | None = None, *, depth: int = 0, glob_filter: str | None = None, include_hidden: bool = False
+        self,
+        root: os.PathLike | None = None,
+        *,
+        depth: int = 0,
+        glob_filter: str | None = None,
+        include_hidden: bool = False,
     ) -> None:
         """
         Initialize a new instance.
 
         Args:
             root (os.PathLike | None): root of the tree.
+            depth (int):
+                Max traversal depth
             glob_filter (str | None): unix wildcard/glob style filter.
             include_hidden (bool):
                 Whether or not to inlcude hidden files and directories.
         """
         self._context: list[TreeItem]
-        self._depth : int
+        self._depth: int
         self._hidden: bool
 
         self._root: TreeItem = TreeItem(root).resolve() if root else TreeItem.cwd()
