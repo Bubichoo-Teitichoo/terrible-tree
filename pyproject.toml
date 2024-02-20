@@ -54,10 +54,9 @@ ignore = [
     "D203",     # no blank line before class docstring
     "D212",     # multi line summary on the first line of a docstring
     "COM812",   # missing trailing comma
-    "FBT001",   # bool as positional argument
 ]
 
-[tool.ruff.per-file-ignores]
+[tool.ruff.lint.per-file-ignores]
 "__init__.py" = [
     "E402",     # unsused imports
 ]
@@ -66,37 +65,33 @@ ignore = [
     "D100",     # missing docstring in public module
 ]
 
-[tool.ruff.format]
-indent-style = "space"
-quote-style = "double"
-
 [tool.ruff.lint.pydocstyle]
 convention = "google"
 
 [tool.ruff.lint.isort]
 known-first-party = ["terrible_tree"]
 
-[tool.poe.tasks]
-install.help = "Setup a development environment and install pre-commit hooks"
-install.sequence = [
-    { cmd = "pdm install" },
-    { cmd = "pre-commit install --install-hooks" }
-]
+[tool.ruff.format]
+indent-style = "space"
+quote-style = "double"
 
-format.help = "Run Code Formatters"
-format.ignore_fail = "return_non_zero"
-format.sequence = [
-    { cmd = "ruff format src" },
-    { cmd = "ruff src --select I --fix" },
+[tool.pdm.scripts]
+post_install.help = "Install pre-commit hooks"
+post_install.cmd = "pre-commit install --install-hooks"
+
+format.help = "Run code formatters"
+format.composite = [ 
+    "ruff format src",
+    "ruff src --select I --fix"
 ]
 
 lint.help = "Run Code linters"
-lint.ignore_fail = "return_non_zero"
-lint.sequence = [
-    { cmd = "ruff src" },
-    { cmd = "ruff format src --check"},
-    { cmd = "mypy src" },
+lint.composite = [
+    "ruff src",
+    "ruff format src --check",
+    "mypy src",
 ]
+
 
 [tool.commitizen]
 tag_format = "v$version"
