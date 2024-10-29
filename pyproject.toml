@@ -93,11 +93,20 @@ lint.composite = [
     "mypy src",
 ]
 
+[tool.pdm.scripts.bump]
+help = "Bump version"
+composite = [
+    "cz bump",
+    "git-changelog",
+    "git commit --no-edit --amend CHANGELOG.md",
+]
+
+[tool.git-changelog]
+convention = "conventional"
+provider = "github"
+output = "CHANGELOG.md"
 
 [tool.commitizen]
-tag_format = "v$version"
-version_provider = "pep621"
-bump_message = """chore: release v$new_version
-
-bump version: $current_version -> $new_version
-"""
+tag_format="v$version"
+version_provider="pep621"
+update_changelog_on_bump=false
