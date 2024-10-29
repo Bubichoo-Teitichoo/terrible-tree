@@ -4,7 +4,7 @@ build-backend = "pdm.backend"
 
 [project]
 name = "terrible-tree"
-version = "0.2.0"
+version = "0.2.1"
 description = "A dump and inefficient reimplmentation of the tree utility application, born out of pure boredome"
 authors = [
     {name = "Philipp Krueger", email = "pille.krueger@web.de"},

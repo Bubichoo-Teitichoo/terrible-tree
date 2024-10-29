@@ -6,11 +6,15 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 <!-- insertion marker -->
-## Unreleased
+## [v0.2.1](https://github.com/Bubichoo-Teitichoo/terrible-tree/releases/tag/v0.2.1) - 2024-10-29
 
-<small>[Compare with latest](https://github.com/Bubichoo-Teitichoo/terrible-tree/compare/v0.2.0...HEAD)</small>
+<small>[Compare with v0.2.0](https://github.com/Bubichoo-Teitichoo/terrible-tree/compare/v0.2.0...v0.2.1)</small>
 
-<!-- insertion marker -->
+### Bug Fixes
+
+- Enable hidden files if filter names dotfile ([81d931f](https://github.com/Bubichoo-Teitichoo/terrible-tree/commit/81d931f48d7948ce94318f10e1ce9f99ce0b6ed4) by Philipp Krüger).
+- Draw files if they match the filter ([8de3a5d](https://github.com/Bubichoo-Teitichoo/terrible-tree/commit/8de3a5df43a22ce1ff418ecaa4b7980c57a5f715) by Philipp Krüger).
+
 ## [v0.2.0](https://github.com/Bubichoo-Teitichoo/terrible-tree/releases/tag/v0.2.0) - 2024-01-18
 
 <small>[Compare with v0.1.0](https://github.com/Bubichoo-Teitichoo/terrible-tree/compare/v0.1.0...v0.2.0)</small>
