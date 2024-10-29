@@ -96,9 +96,9 @@ lint.composite = [
 [tool.pdm.scripts.bump]
 help = "Bump version"
 composite = [
+    "git-changelog --bump=auto",
+    "git add CHANGELOG.md",
     "cz bump",
-    "git-changelog",
-    "git commit --no-edit --amend CHANGELOG.md",
 ]
 
 [tool.git-changelog]
