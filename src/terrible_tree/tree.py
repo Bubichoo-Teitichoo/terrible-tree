@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 import platform
 from fnmatch import fnmatch
 from pathlib import Path
@@ -12,7 +13,6 @@ import natsort
 from .icons import TREE_DIR_ICON, TREE_FILE_ICON
 
 if TYPE_CHECKING:
-    import os
     from collections.abc import Callable, Generator
 
 
@@ -163,6 +163,8 @@ class TerribleTree:
 
         self._root: TreeItem = TreeItem(root).resolve() if root else TreeItem.cwd()
         self._filter: str = glob_filter or "*"
+        if self._filter.startswith(".") and not self._filter.startswith(f".{os.sep}"):
+            include_hidden = True
         self.reset(depth, include_hidden=include_hidden)
 
     def __iter__(self) -> Generator[TreeItem, None, None]:
