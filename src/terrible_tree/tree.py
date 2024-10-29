@@ -1,4 +1,5 @@
 """API."""
+
 from __future__ import annotations
 
 import platform
@@ -263,6 +264,6 @@ class TerribleTree:
             if item.is_dir():
                 return bool(list(item.resolve().rglob(self._filter)))
 
-            return fnmatch(item.as_posix(), self._filter)
+            return fnmatch(item.as_posix(), self._filter) or item.name == self._filter
 
         return list(filter(fnmatch_closure, item.iterdir(include_hidden=self._hidden)))
