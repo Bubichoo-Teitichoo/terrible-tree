@@ -36,6 +36,7 @@ dev = [
     "ruff<1.0.0,>=0.1.6",
     "pre-commit<4.0.0,>=3.5.0",
     "mypy>=1.8.0",
+    "git-changelog>=2.5.2",
 ]
 
 [tool.pdm.build]
